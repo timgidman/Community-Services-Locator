@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Services Locator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-section {
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 50px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .search-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .search-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border-color: #27ae60;
+            transform: scale(1.05);
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .services-container {
+            padding: 30px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .service-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .service-name {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #2c3e50;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .service-type {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .service-type.housing { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); }
+        .service-type.food { background: linear-gradient(135deg, #27ae60 0%, #229954 100%); }
+        .service-type.healthcare { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); }
+        .service-type.addiction { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
+        .service-type.employment { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); }
+        .service-type.mental-health { background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%); }
+
+        .service-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .detail-icon {
+            width: 20px;
+            height: 20px;
+            background: #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .service-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .contact-info {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .contact-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .call-btn {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .website-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .additional-resources {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .additional-resources h4 {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .resource-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .resource-btn {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .resource-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #777;
+        }
+
+        .no-results h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .emergency-banner {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container { margin: 10px; border-radius: 15px; }
+            .header h1 { font-size: 2em; }
+            .search-container { flex-direction: column; }
+            .service-details { grid-template-columns: 1fr; }
+            .contact-info { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Community Services Locator</h1>
+            <p>Find housing, food, healthcare, and recovery resources in your area</p>
+        </div>
+
+        <div class="emergency-banner">
+            🚨 EMERGENCY: Call 911 for immediate danger | Crisis Hotline: 988 | Homeless Hotline: 211
+        </div>
+
+        <div style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; padding: 15px; text-align: center; font-weight: 600; margin-bottom: 20px; border-radius: 10px;">
+            <a href="https://timcan.help/" target="_blank" style="color: white; text-decoration: underline; font-weight: bold; font-size: 1.3em;">https://timcan.help/</a>
+        </div>
+
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" id="zipcodeInput" class="search-input" placeholder="Enter ZIP Code (e.g., 06101)">
+                <button onclick="searchServices()" class="search-btn">🔍 Find Services</button>
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All Services</button>
+                <button class="filter-btn" data-filter="housing">🏠 Housing</button>
+                <button class="filter-btn" data-filter="food">🍽️ Food</button>
+                <button class="filter-btn" data-filter="healthcare">🏥 Healthcare</button>
+                <button class="filter-btn" data-filter="addiction">💊 Addiction Recovery</button>
+                <button class="filter-btn" data-filter="employment">💼 Employment</button>
+                <button class="filter-btn" data-filter="mental-health">🧠 Mental Health</button>
+            </div>
+        </div>
+
+        <div class="services-container" id="servicesContainer">
+            <div class="no-results">
+                <h3>Welcome to Community Services Locator</h3>
+                <p>Enter your ZIP code above to find local services and resources.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample service data - in a real app, this would come from an API
+        const servicesData = {
+            "06101": [
+                {
+                    name: "Hartford Homeless Shelter",
+                    type: "housing",
+                    address: "100 Broad St, Hartford, CT 06103",
+                    phone: "(860) 555-0101",
+                    website: "https://www.immaculateconceptionshelter.org",
+                    hours: "24/7",
+                    description: "Emergency shelter providing temporary housing, meals, and case management services for individuals and families experiencing homelessness.",
+                    services: ["Emergency Housing", "Meals", "Case Management", "Job Training"],
+                    additionalResources: [
+                        { name: "House of Bread", url: "https://www.houseofbreadhartford.org" },
+                        { name: "Catholic Charities", url: "https://www.ccaoh.org" }
+                    ]
+                },
+                {
+                    name: "Trinity Food Pantry",
+                    type: "food",
+                    address: "120 Sigourney St, Hartford, CT 06105",
+                    phone: "(860) 555-0102",
+                    website: "https://www.trinityhartford.org/food-pantry",
+                    hours: "Mon-Fri 9AM-5PM",
+                    description: "Free food distribution for individuals and families in need. No documentation required.",
+                    services: ["Food Distribution", "Emergency Food Boxes", "Nutrition Education"],
+                    additionalResources: [
+                        { name: "Hartford Food System", url: "https://www.hartfordfood.org" },
+                        { name: "CT Food Bank", url: "https://www.ctfoodbank.org" }
+                    ]
+                },
+                {
+                    name: "Hartford Recovery Center",
+                    type: "addiction",
+                    address: "200 Main St, Hartford, CT 06106",
+                    phone: "(860) 555-0103",
+                    website: "https://www.ctbehavioralhealth.org",
+                    hours: "Mon-Fri 8AM-8PM, Sat 9AM-3PM",
+                    description: "Comprehensive addiction treatment including detox, counseling, and recovery support groups.",
+                    services: ["Detoxification", "Counseling", "Support Groups", "Medication Assisted Treatment"],
+                    additionalResources: [
+                        { name: "DMHAS CT", url: "https://portal.ct.gov/dmhas" },
+                        { name: "Connecticut Community for Addiction Recovery", url: "https://www.ccar.us" }
+                    ]
+                },
+                {
+                    name: "Community Health Center",
+                    type: "healthcare",
+                    address: "75 Jefferson St, Hartford, CT 06106",
+                    phone: "(860) 555-0104",
+                    website: "https://www.chc1.com",
+                    hours: "Mon-Fri 7AM-7PM, Sat 8AM-2PM",
+                    description: "Primary healthcare services for uninsured and underinsured individuals. Sliding fee scale available.",
+                    services: ["Primary Care", "Mental Health", "Dental", "Pharmacy"],
+                    additionalResources: [
+                        { name: "Hartford Hospital", url: "https://www.hartfordhospital.org" },
+                        { name: "Connecticut Health Foundation", url: "https://www.cthealth.org" }
+                    ]
+                },
+                {
+                    name: "Workforce Development Center",
+                    type: "employment",
+                    address: "160 Hawley St, Hartford, CT 06106",
+                    phone: "(860) 555-0105",
+                    website: "https://www.capitalworkforce.org",
+                    hours: "Mon-Fri 8AM-5PM",
+                    description: "Job training, placement services, and career counseling for individuals seeking employment.",
+                    services: ["Job Training", "Resume Help", "Interview Prep", "Career Counseling"],
+                    additionalResources: [
+                        { name: "CT Department of Labor", url: "https://www.ct.gov/dol" },
+                        { name: "American Job Center", url: "https://www.careeronestop.org" }
+                    ]
+                },
+                {
+                    name: "Hartford Mental Health Services",
+                    type: "mental-health",
+                    address: "500 Asylum Ave, Hartford, CT 06105",
+                    phone: "(860) 555-0106",
+                    website: "https://www.iohct.org",
+                    hours: "Mon-Fri 8AM-6PM, Emergency 24/7",
+                    description: "Mental health counseling, crisis intervention, and psychiatric services for all ages.",
+                    services: ["Individual Counseling", "Group Therapy", "Crisis Intervention", "Psychiatric Services"],
+                    additionalResources: [
+                        { name: "NAMI Connecticut", url: "https://www.namict.org" },
+                        { name: "Mental Health CT", url: "https://www.mhc.org" }
+                    ]
+                }
+            ],
+            "06106": [
+                {
+                    name: "West Hartford Family Services",
+                    type: "housing",
+                    address: "85 South Main St, West Hartford, CT 06107",
+                    phone: "(860) 555-0201",
+                    website: "https://www.westhartfordct.gov/human-services",
+                    hours: "Mon-Fri 9AM-5PM",
+                    description: "Housing assistance, rental support, and family services for residents in crisis.",
+                    services: ["Rental Assistance", "Emergency Housing", "Family Counseling", "Utility Assistance"],
+                    additionalResources: [
+                        { name: "Connecticut Housing Finance Authority", url: "https://www.chfa.org" },
+                        { name: "United Way of Central & Northeastern CT", url: "https://www.unitedwaycnct.org" }
+                    ]
+                },
+                {
+                    name: "Covenant Soup Kitchen",
+                    type: "food",
+                    address: "130 Vernon St, Hartford, CT 06106",
+                    phone: "(860) 555-0202",
+                    website: "https://www.covenantsouppkitchen.org",
+                    hours: "Daily 11:30AM-1PM, 5:30PM-7PM",
+                    description: "Free hot meals served daily to anyone in need. No questions asked policy.",
+                    services: ["Hot Meals", "Take-home Meals", "Holiday Dinners", "Community Events"],
+                    additionalResources: [
+                        { name: "Feeding America", url: "https://www.feedingamerica.org" },
+                        { name: "211 Connecticut", url: "https://www.211ct.org" }
+                    ]
+                }
+            ],
+            "90210": [
+                {
+                    name: "Beverly Hills Community Outreach",
+                    type: "housing",
+                    address: "9500 Wilshire Blvd, Beverly Hills, CA 90212",
+                    phone: "(310) 555-0301",
+                    website: "https://example.com/bh-outreach",
+                    hours: "Mon-Fri 8AM-6PM",
+                    description: "Transitional housing and support services for individuals and families experiencing homelessness.",
+                    services: ["Transitional Housing", "Case Management", "Life Skills Training", "Job Placement"]
+                },
+                {
+                    name: "West Side Recovery Program",
+                    type: "addiction",
+                    address: "8950 Olympic Blvd, Beverly Hills, CA 90211",
+                    phone: "(310) 555-0302",
+                    website: "https://example.com/westside-recovery",
+                    hours: "24/7",
+                    description: "Residential and outpatient addiction treatment with luxury amenities and evidence-based therapies.",
+                    services: ["Residential Treatment", "Outpatient Programs", "Family Therapy", "Aftercare Support"]
+                }
+            ],
+            "06098": [
+                {
+                    name: "Winsted Area Emergency Shelter",
+                    type: "housing",
+                    address: "45 Main St, Winsted, CT 06098",
+                    phone: "(860) 555-0401",
+                    website: "https://example.com/winsted-shelter",
+                    hours: "24/7 Emergency, Office 9AM-5PM",
+                    description: "Emergency shelter and transitional housing for individuals and families in crisis. Serves the greater Litchfield County area.",
+                    services: ["Emergency Shelter", "Transitional Housing", "Case Management", "Transportation Services"]
+                },
+                {
+                    name: "Northwest Connecticut Food Bank",
+                    type: "food",
+                    address: "15 Pearl St, Winsted, CT 06098",
+                    phone: "(860) 555-0402",
+                    website: "https://example.com/nw-foodbank",
+                    hours: "Mon-Wed-Fri 10AM-4PM, Sat 9AM-12PM",
+                    description: "Food pantry serving Litchfield County with fresh produce, canned goods, and emergency food assistance.",
+                    services: ["Food Pantry", "Emergency Food Boxes", "Senior Food Program", "Mobile Food Pantry"]
+                },
+                {
+                    name: "Highland Health Center",
+                    type: "healthcare",
+                    address: "80 Highland Ave, Winsted, CT 06098",
+                    phone: "(860) 555-0403",
+                    website: "https://example.com/highland-health",
+                    hours: "Mon-Fri 8AM-6PM, Sat 9AM-1PM",
+                    description: "Community health center providing primary care, dental, and behavioral health services on a sliding fee scale.",
+                    services: ["Primary Care", "Dental Services", "Behavioral Health", "Prescription Assistance"]
+                },
+                {
+                    name: "Recovery Connections Northwest",
+                    type: "addiction",
+                    address: "125 East Main St, Winsted, CT 06098",
+                    phone: "(860) 555-0404",
+                    website: "https://example.com/recovery-nw",
+                    hours: "Mon-Fri 8AM-8PM, Weekends 10AM-4PM",
+                    description: "Comprehensive addiction recovery services including outpatient treatment, counseling, and peer support programs.",
+                    services: ["Outpatient Treatment", "Individual Counseling", "Group Therapy", "Peer Recovery Support"]
+                },
+                {
+                    name: "Winsted Community Kitchen",
+                    type: "food",
+                    address: "210 Main St, Winsted, CT 06098",
+                    phone: "(860) 555-0405",
+                    website: "https://example.com/winsted-kitchen",
+                    hours: "Mon-Fri 11:30AM-1PM, Sat 5PM-6:30PM",
+                    description: "Free community meals served to anyone in need. Welcoming environment with no questions asked.",
+                    services: ["Hot Meals", "Take-away Meals", "Community Events", "Holiday Meals"]
+                },
+                {
+                    name: "Northwest Employment Services",
+                    type: "employment",
+                    address: "95 South Main St, Winsted, CT 06098",
+                    phone: "(860) 555-0406",
+                    website: "https://example.com/nw-employment",
+                    hours: "Mon-Thu 9AM-5PM, Fri 9AM-3PM",
+                    description: "Job placement services, skills training, and career development for residents of Northwest Connecticut.",
+                    services: ["Job Placement", "Skills Training", "Resume Writing", "Computer Training"]
+                }
+            ],
+            "06790": [
+                {
+                    name: "Torrington Area Shelter",
+                    type: "housing",
+                    address: "180 Water St, Torrington, CT 06790",
+                    phone: "(860) 555-0501",
+                    website: "https://example.com/torrington-shelter",
+                    hours: "24/7",
+                    description: "Year-round emergency shelter providing safe housing, meals, and supportive services for homeless individuals and families.",
+                    services: ["Emergency Housing", "Meals", "Case Management", "Mental Health Support"]
+                },
+                {
+                    name: "Susan B. Anthony Project",
+                    type: "housing",
+                    address: "386 Main St, Torrington, CT 06790",
+                    phone: "(860) 555-0502",
+                    website: "https://example.com/sba-project",
+                    hours: "24/7 Hotline, Office Mon-Fri 9AM-5PM",
+                    description: "Domestic violence shelter and services for survivors of domestic abuse and their children.",
+                    services: ["Safe House", "Crisis Counseling", "Legal Advocacy", "Children's Services"]
+                },
+                {
+                    name: "Torrington Community Food Pantry",
+                    type: "food",
+                    address: "160 South Main St, Torrington, CT 06790",
+                    phone: "(860) 555-0503",
+                    website: "https://example.com/torrington-pantry",
+                    hours: "Tue-Thu 10AM-3PM, Sat 9AM-12PM",
+                    description: "Food assistance program providing groceries and emergency food supplies to families in need throughout Litchfield County.",
+                    services: ["Food Pantry", "Emergency Food", "Holiday Food Baskets", "Senior Food Program"]
+                },
+                {
+                    name: "Charlotte Hungerford Hospital - Community Health",
+                    type: "healthcare",
+                    address: "540 Litchfield St, Torrington, CT 06790",
+                    phone: "(860) 555-0504",
+                    website: "https://example.com/chh-community",
+                    hours: "Mon-Fri 8AM-5PM",
+                    description: "Community health programs including primary care, behavioral health, and preventive services for underserved populations.",
+                    services: ["Primary Care", "Behavioral Health", "Preventive Care", "Health Education"]
+                },
+                {
+                    name: "McCall Foundation - Addiction Services",
+                    type: "addiction",
+                    address: "58 High St, Torrington, CT 06790",
+                    phone: "(860) 555-0505",
+                    website: "https://example.com/mccall-foundation",
+                    hours: "Mon-Fri 8AM-8PM, Sat 9AM-2PM",
+                    description: "Comprehensive addiction treatment services including detox, residential treatment, and outpatient programs.",
+                    services: ["Detoxification", "Residential Treatment", "Outpatient Programs", "Family Support"]
+                },
+                {
+                    name: "Northwestern Mental Health",
+                    type: "mental-health",
+                    address: "100 Migeon Ave, Torrington, CT 06790",
+                    phone: "(860) 555-0506",
+                    website: "https://example.com/nw-mental-health",
+                    hours: "Mon-Fri 8AM-6PM, Crisis Line 24/7",
+                    description: "Mental health services including individual therapy, group counseling, and crisis intervention for all ages.",
+                    services: ["Individual Therapy", "Group Counseling", "Crisis Intervention", "Psychiatric Services"]
+                },
+                {
+                    name: "Torrington Job Training Center",
+                    type: "employment",
+                    address: "200 University Dr, Torrington, CT 06790",
+                    phone: "(860) 555-0507",
+                    website: "https://example.com/torrington-jobs",
+                    hours: "Mon-Fri 8AM-4PM",
+                    description: "Workforce development programs offering job training, placement services, and career counseling for displaced workers.",
+                    services: ["Job Training", "Career Counseling", "Job Placement", "Skills Assessment"]
+                },
+                {
+                    name: "Safe Haven Soup Kitchen",
+                    type: "food",
+                    address: "29 East Elm St, Torrington, CT 06790",
+                    phone: "(860) 555-0508",
+                    website: "https://example.com/safe-haven",
+                    hours: "Mon-Fri 12PM-2PM, Sat 5PM-7PM",
+                    description: "Free hot meals served daily in a welcoming environment. Also provides bag lunches and weekend food boxes.",
+                    services: ["Hot Meals", "Bag Lunches", "Weekend Food Boxes", "Community Gatherings"]
+                }
+            ]
+        };
+
+        let currentFilter = 'all';
+        let currentServices = [];
+
+        function initializeApp() {
+            setupFilterButtons();
+            
+            // Allow Enter key to search
+            document.getElementById('zipcodeInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchServices();
+                }
+            });
+        }
+
+        function setupFilterButtons() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    filterServices();
+                });
+            });
+        }
+
+        function searchServices() {
+            const zipcode = document.getElementById('zipcodeInput').value.trim();
+            const container = document.getElementById('servicesContainer');
+            
+            if (!zipcode) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <h3>Please enter a ZIP code</h3>
+                        <p>Enter your ZIP code to find local services and resources.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (servicesData[zipcode]) {
+                currentServices = servicesData[zipcode];
+                filterServices();
+            } else {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <h3>No services found for ZIP code ${zipcode}</h3>
+                        <p>Try searching for nearby ZIP codes or contact 211 for assistance.</p>
+                        <div style="margin-top: 20px;">
+                            <strong>Available ZIP codes for demo:</strong><br>
+                            06101, 06106 (Hartford, CT) | 06098 (Winsted, CT) | 06790 (Torrington, CT) | 90210 (Beverly Hills, CA)
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function filterServices() {
+            let filteredServices = currentServices;
+            
+            if (currentFilter !== 'all') {
+                filteredServices = currentServices.filter(service => service.type === currentFilter);
+            }
+            
+            displayServices(filteredServices);
+        }
+
+        function displayServices(services) {
+            const container = document.getElementById('servicesContainer');
+            
+            if (services.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <h3>No services found</h3>
+                        <p>No services match your current filter. Try selecting "All Services".</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = services.map(service => `
+                <div class="service-card">
+                    <div class="service-header">
+                        <div class="service-name">${service.name}</div>
+                        <div class="service-type ${service.type}">${formatServiceType(service.type)}</div>
+                    </div>
+                    
+                    <div class="service-details">
+                        <div class="detail-item">
+                            <div class="detail-icon">📍</div>
+                            <div>${service.address}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-icon">🕒</div>
+                            <div>${service.hours}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-icon">📋</div>
+                            <div>${service.services.join(', ')}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="service-description">
+                        ${service.description}
+                    </div>
+                    
+                    <div class="contact-info">
+                        <a href="tel:${service.phone}" class="contact-btn call-btn">
+                            📞 Call ${service.phone}
+                        </a>
+                        <a href="${service.website}" target="_blank" class="contact-btn website-btn">
+                            🌐 Visit Website
+                        </a>
+                    </div>
+                    
+                    ${service.additionalResources ? `
+                    <div class="additional-resources">
+                        <h4>Additional Resources:</h4>
+                        <div class="resource-links">
+                            ${service.additionalResources.map(resource => `
+                                <a href="${resource.url}" target="_blank" class="resource-btn">
+                                    🔗 ${resource.name}
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function formatServiceType(type) {
+            const typeMap = {
+                'housing': '🏠 Housing',
+                'food': '🍽️ Food',
+                'healthcare': '🏥 Healthcare',
+                'addiction': '💊 Addiction Recovery',  
+                'employment': '💼 Employment',
+                'mental-health': '🧠 Mental Health'
+            };
+            return typeMap[type] || type;
+        }
+
+        // Initialize the app when page loads
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
